@@ -104,7 +104,7 @@ docker build \
 | Workflow | Trigger | Action |
 |----------|---------|--------|
 | `check-upstream.yml` | daily cron @ 04:00 UTC, manual | Looks up the latest QBEE release tag, triggers `build.yml` with that version |
-| `build.yml` | `workflow_dispatch`, `repository_dispatch` from cron, push to `main` touching Dockerfile/entrypoint | Computes SHA256 of upstream artifact, checks if `ghcr.io/.../qbittorrent-ee:<VER>` already exists, builds & pushes `:<VER>` and `:latest` if not |
+| `build.yml` | `workflow_dispatch` (manual, or invoked by `check-upstream.yml` cron), push to `main` touching Dockerfile/entrypoint | Computes SHA256 of upstream artifact, checks if `ghcr.io/.../qbittorrent-ee:<VER>` already exists, builds & pushes `:<VER>` and `:latest` if not |
 
 The cron-driven flow is the canonical path: every day at 04:00 UTC, if c0re100 has published a new release, this repo builds and pushes both the version tag and `:latest`. Re-runs for an already-built version are a no-op (manifest check), so daily idempotent triggering has zero cost.
 
