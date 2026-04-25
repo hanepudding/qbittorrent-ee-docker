@@ -17,8 +17,6 @@ on:
         required: false
         default: false
         type: boolean
-  repository_dispatch:
-    types: [upstream-release]
   push:
     branches: [main]
     paths:
@@ -50,12 +48,6 @@ jobs:
               VER="${{ inputs.qbee_version }}"
               PUSH_LATEST="${{ inputs.push_latest }}"
               FORCE="${{ inputs.force }}"
-              ;;
-            repository_dispatch)
-              # Triggered by check-upstream cron — by definition this IS latest.
-              VER="${{ github.event.client_payload.qbee_version }}"
-              PUSH_LATEST="true"
-              FORCE="false"
               ;;
             push)
               # Re-build current upstream latest on Dockerfile/entrypoint changes.
