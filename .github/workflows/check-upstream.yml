@@ -1,0 +1,40 @@
+name: Check upstream
+
+on:
+  schedule:
+    # Daily at 04:00 UTC (12:00 China time). Adjust to taste.
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  QBEE_REPO: c0re100/qBittorrent-Enhanced-Edition
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve latest upstream version
+        id: upstream
+        run: |
+          set -euo pipefail
+          TAG=$(curl -fsSL "https://api.github.com/repos/${QBEE_REPO}/releases/latest" | jq -r .tag_name)
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "::error::Could not resolve latest QBEE release"; exit 1
+          fi
+          # tag is like "release-5.1.3.10"
+          VER="${TAG#release-}"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "::notice::Latest upstream QBEE version: $VER"
+
+      - name: Trigger build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yml \
+            -R "${{ github.repository }}" \
+            --field qbee_version="${{ steps.upstream.outputs.version }}"
+          echo "::notice::Triggered build for QBEE ${{ steps.upstream.outputs.version }} (build.yml will skip if image already exists)"
