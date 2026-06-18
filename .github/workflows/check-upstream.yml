@@ -17,6 +17,12 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Keepalive — prevent GitHub from disabling this scheduled workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X PUT /repos/${{ github.repository }}/actions/workflows/check-upstream.yml/enable
+
       - name: Resolve latest upstream version
         id: upstream
         run: |
