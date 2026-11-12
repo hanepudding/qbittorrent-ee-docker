@@ -41,6 +41,8 @@ jobs:
 
       - name: Resolve QBEE version & tagging behavior
         id: ver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           case "${{ github.event_name }}" in
@@ -51,8 +53,8 @@ jobs:
               ;;
             push)
               # Re-build current upstream latest on Dockerfile/entrypoint changes.
-              VER=$(curl -fsSL "https://api.github.com/repos/${QBEE_REPO}/releases/latest" \
-                    | jq -r .tag_name | sed 's/^release-//')
+              VER=$(gh api "repos/${QBEE_REPO}/releases/latest" --jq .tag_name \
+                    | sed 's/^release-//')
               PUSH_LATEST="true"
               FORCE="true"
               ;;
