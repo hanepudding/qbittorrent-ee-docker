@@ -97,7 +97,7 @@ jobs:
         run: |
           set -euo pipefail
           VER="${{ steps.ver.outputs.version }}"
-          IMG="${REGISTRY}/${IMAGE_NAME}:${VER}"
+          IMG="${REGISTRY}/${IMAGE_NAME,,}:${VER}"
           if docker manifest inspect "$IMG" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "::notice::$IMG already exists, skipping build"
@@ -110,9 +110,9 @@ jobs:
         if: steps.ver.outputs.force == 'true' || steps.check.outputs.exists != 'true'
         run: |
           VER="${{ steps.ver.outputs.version }}"
-          TAGS="${REGISTRY}/${IMAGE_NAME}:${VER}"
+          TAGS="${REGISTRY}/${IMAGE_NAME,,}:${VER}"
           if [ "${{ steps.ver.outputs.push_latest }}" = "true" ]; then
-            TAGS="${TAGS}"$'\n'"${REGISTRY}/${IMAGE_NAME}:latest"
+            TAGS="${TAGS}"$'\n'"${REGISTRY}/${IMAGE_NAME,,}:latest"
           fi
           {
             echo "list<<EOF"
