@@ -25,9 +25,12 @@ jobs:
 
       - name: Resolve latest upstream version
         id: upstream
+        env:
+          # Authenticated: anonymous calls share the runner IP's 60 req/h quota and get 403.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          TAG=$(curl -fsSL "https://api.github.com/repos/${QBEE_REPO}/releases/latest" | jq -r .tag_name)
+          TAG=$(gh api "repos/${QBEE_REPO}/releases/latest" --jq .tag_name)
           if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
             echo "::error::Could not resolve latest QBEE release"; exit 1
           fi
